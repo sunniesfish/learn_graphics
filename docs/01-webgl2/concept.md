@@ -2,7 +2,7 @@
 
 이 진화의 보상은 화려함이 아니라 **"GPU에 데이터를 올리고 셰이더를 붙여 그린다"는 파이프라인이 손에 붙는 것**이다. 먼저 [foundations.md](../foundations.md)를 읽었다는 전제로, 여기선 진화 1에서 실제로 만지는 개념만 다룬다.
 
-> 하이브리드 문서: **멘탈모델·왜·순서**는 여기서, **API 시그니처·인자**는 [WebGL2 Fundamentals](https://webgl2fundamentals.org/)에서. 각 절 끝의 `→ 정본` 링크로 넘어가라.
+> 문서 구조: **멘탈모델·왜·순서**는 여기서, **API 시그니처·인자·함정**은 [lessons/](lessons/)에서. 각 절 끝의 `→ 상세` 링크로 넘어가라. 이 프로젝트의 교재는 이 안에서 완결된다 — 외부 자료(WebGL2 Fundamentals 등)는 선택 보조일 뿐이다.
 >
 > 튜터 모드: 여기에 네가 짤 해답 코드는 없다. 막히면 코드가 아니라 개념을 다시 읽고, 그래도 막히면 질문해라.
 
@@ -31,7 +31,7 @@
 
 핵심 질문(스스로): *캔버스의 CSS 크기와 실제 픽셀 해상도(`width`/`height` 속성)는 같은가? 다르면 뷰포트를 뭘 기준으로 잡아야 하나?* (HiDPI에서 이게 흐릿함의 원인이 된다.)
 
-→ 정본: WebGL2 Fundamentals *"Fundamentals"*, *"Resizing the Canvas"*
+→ 상세: [레슨 1 — 컨텍스트 · 캔버스 · 뷰포트](lessons/01-context-canvas-viewport.md)
 
 ## 2. Buffer — 데이터를 GPU로 올리기
 
@@ -43,7 +43,7 @@
 
 핵심 질문: *이 buffer 안에 든 건 그냥 숫자의 나열이다. GPU는 이 나열을 어떻게 "x,y가 한 쌍인 점 좌표"로 해석할까?* → 그 해석을 정하는 게 attribute 배선(§4)이다.
 
-→ 정본: WebGL2 Fundamentals *"How It Works"*
+→ 상세: [레슨 3 — Buffer와 Attribute](lessons/03-buffers-and-attributes.md) §1
 
 ## 3. 셰이더 컴파일 · 링크
 
@@ -59,7 +59,7 @@ vertex shader와 fragment shader는 GLSL로 쓴 문자열이다. GPU에 설치�
 
 핵심 질문: *셰이더 컴파일이 조용히 실패한다면, "점이 안 보임"의 원인이 (a) 컴파일 실패인지 (b) 좌표가 화면 밖인지 (c) 색이 배경과 같은지를 어떻게 구분할까?* → 이 구분 전략을 troubleshooting.md에 적어라.
 
-→ 정본: WebGL2 Fundamentals *"Fundamentals"* (boilerplate 부분), MDN *"Adding 2D content to a WebGL context"*
+→ 상세: [레슨 2 — 셰이더와 GLSL](lessons/02-shaders-and-glsl.md)
 
 ## 4. Attribute — buffer를 셰이더 입력에 배선
 
@@ -70,7 +70,7 @@ buffer는 그냥 바이트 덩어리다. **attribute**는 vertex shader의 입�
 
 핵심 질문: *점 하나가 (x, y) 2개 값이면 성분 개수는 몇이어야 하나? 만약 (x,y,z)로 바꾸면 뭘 같이 바꿔야 하나?*
 
-→ 정본: WebGL2 Fundamentals *"How It Works"*, *"Attributes"*
+→ 상세: [레슨 3 — Buffer와 Attribute](lessons/03-buffers-and-attributes.md)
 
 ## 5. Uniform — 모든 점이 공유하는 값
 
@@ -81,7 +81,7 @@ attribute가 "정점마다 다른 값"이라면, **uniform**은 "이번 draw cal
 
 핵심 질문: *색은 uniform, 위치는 attribute다. 그럼 "점마다 다른 색"을 원하면 색은 어디로 옮겨야 하나?* (이 판단이 attribute vs uniform의 본질이다.)
 
-→ 정본: WebGL2 Fundamentals *"Shaders and GLSL"*
+→ 상세: [레슨 4 — Uniform과 렌더 루프](lessons/04-uniforms-and-render-loop.md)
 
 ## 6. gl_Position · gl_PointSize · clip space
 
@@ -92,7 +92,7 @@ vertex shader가 반드시 채워야 하는 출력이 **`gl_Position`**(vec4, cl
 
 핵심 질문: *내 점 좌표 배열이 0~800(픽셀 좌표처럼) 범위라면 화면에 어떻게 보일까? 왜 다 한쪽 구석에 몰리거나 안 보일까?* → clip space로 안 바꿨기 때문. 이게 첫 "점이 안 보임"의 흔한 원인이다.
 
-→ 정본: WebGL2 Fundamentals *"Shaders and GLSL"*
+→ 상세: [레슨 2 — 셰이더와 GLSL](lessons/02-shaders-and-glsl.md) §2
 
 ## 7. 렌더 루프
 
@@ -101,7 +101,7 @@ vertex shader가 반드시 채워야 하는 출력이 **`gl_Position`**(vec4, cl
 
 핵심 질문: *매 프레임 buffer를 다시 올리고 셰이더를 다시 컴파일해야 할까, 아니면 그건 한 번만 하고 루프에선 draw call만 반복하면 될까?* (초기화 vs 매 프레임의 경계 — 성능의 기초이자 네 강점이 발휘될 지점.)
 
-→ 정본: WebGL2 Fundamentals *"Animation"* (지금은 개념만, 실제 애니메이션은 진화 2)
+→ 상세: [레슨 4 — Uniform과 렌더 루프](lessons/04-uniforms-and-render-loop.md) §3
 
 ---
 
