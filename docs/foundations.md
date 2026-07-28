@@ -90,34 +90,34 @@ vertex shader가 출력하는 `gl_Position`은 **clip space** 좌표(vec4)다. �
 
 ### 축 A — 파티클 데이터는 어디에 사나 (버퍼의 여정)
 
-| 진화 | 데이터가 사는 곳 | 네가 하는 일 |
-| --- | --- | --- |
-| 1 WebGL2 | VBO (직접 생성) | `createBuffer` → `bufferData` → `vertexAttribPointer` 손으로 배선 |
-| 2 GLSL | 같은 VBO | 버퍼는 그대로. 셰이더가 그 데이터를 절차적으로 가공 |
+| 진화       | 데이터가 사는 곳             | 네가 하는 일                                                            |
+| ---------- | ---------------------------- | ----------------------------------------------------------------------- |
+| 1 WebGL2   | VBO (직접 생성)              | `createBuffer` → `bufferData` → `vertexAttribPointer` 손으로 배선       |
+| 2 GLSL     | 같은 VBO                     | 버퍼는 그대로. 셰이더가 그 데이터를 절차적으로 가공                     |
 | 3 three.js | `BufferGeometry`의 attribute | **진화 1의 그 버퍼가 이 래퍼 안에 숨어 있다.** `setAttribute`가 곧 배선 |
-| 4 WebGPU | storage buffer | attribute의 진화형. 이제 compute shader가 **읽고 쓴다** |
+| 4 WebGPU   | storage buffer               | attribute의 진화형. 이제 compute shader가 **읽고 쓴다**                 |
 
 > three.js에서 `BufferGeometry`를 처음 볼 때 "이게 뭐지"가 아니라 **"아, 진화 1에서 손으로 하던 그 버퍼구나"** 로 보이면 bottom-up이 성공한 거다.
 
 ### 축 B — 파티클 움직임(물리)은 어디서 계산되나
 
-| 진화 | 계산 위치 | 상태 유지 방식 |
-| --- | --- | --- |
-| 1 WebGL2 | 안 움직임 (정적) | 없음 — 프레임 루프만 돎 |
-| 2 GLSL | **vertex shader** (시간 기반 절차적) | 무상태(stateless). `u_time`으로 매 프레임 처음부터 재계산 |
-| 3 three.js | 여전히 셰이더 (three.js가 감쌈) | 대개 무상태 유지 |
-| 4 WebGPU | **compute shader** | **유상태(stateful).** ping-pong 버퍼로 이전 프레임 속도·위치를 이어받음 |
+| 진화       | 계산 위치                            | 상태 유지 방식                                                          |
+| ---------- | ------------------------------------ | ----------------------------------------------------------------------- |
+| 1 WebGL2   | 안 움직임 (정적)                     | 없음 — 프레임 루프만 돎                                                 |
+| 2 GLSL     | **vertex shader** (시간 기반 절차적) | 무상태(stateless). `u_time`으로 매 프레임 처음부터 재계산               |
+| 3 three.js | 여전히 셰이더 (three.js가 감쌈)      | 대개 무상태 유지                                                        |
+| 4 WebGPU   | **compute shader**                   | **유상태(stateful).** ping-pong 버퍼로 이전 프레임 속도·위치를 이어받음 |
 
 이 축이 진화 4가 "정점"인 이유를 설명한다. 무상태(2·3)에서 유상태(4)로 넘어가는 순간이 진짜 시뮬레이션의 시작이고, 그게 readback 없이 GPU 안에서 완결된다.
 
 ### 축 C — 셰이더 언어와 그 그릇
 
-| 진화 | 언어 | 그릇 |
-| --- | --- | --- |
-| 1 WebGL2 | GLSL (최소한) | 원시 program (`gl_Position`/`gl_PointSize`만) |
-| 2 GLSL | GLSL (주인공) | 같은 program, 이제 노이즈·색·블렌딩이 여기 |
-| 3 three.js | **같은 GLSL** | `ShaderMaterial` 안으로 이사. 진화 2 셰이더 재사용 |
-| 4 WebGPU | **WGSL** | pipeline + bind group. GLSL→WGSL 문법 차이 + compute 추가 |
+| 진화       | 언어          | 그릇                                                      |
+| ---------- | ------------- | --------------------------------------------------------- |
+| 1 WebGL2   | GLSL (최소한) | 원시 program (`gl_Position`/`gl_PointSize`만)             |
+| 2 GLSL     | GLSL (주인공) | 같은 program, 이제 노이즈·색·블렌딩이 여기                |
+| 3 three.js | **같은 GLSL** | `ShaderMaterial` 안으로 이사. 진화 2 셰이더 재사용        |
+| 4 WebGPU   | **WGSL**      | pipeline + bind group. GLSL→WGSL 문법 차이 + compute 추가 |
 
 > ⚠️ "재사용"엔 함정이 있다: three.js `ShaderMaterial`은 `projectionMatrix`·`modelViewMatrix` 같은 uniform과 `position` 등 attribute를 **자동 주입**한다. 진화 2의 raw GLSL(직접 clip space에 쓰던 vertex shader)을 그대로 붙이면 재선언 충돌이 난다 — fragment는 대체로 그대로 오지만, vertex는 three.js 규약에 맞춰 조정하거나 `RawShaderMaterial`을 쓴다. 진화 3에서 다시 만날 함정.
 
